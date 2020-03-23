@@ -2,6 +2,7 @@
 /* eslint-disable import/no-dynamic-require */
 const { Client, Collection } = require('discord.js');
 const { promisify } = require('util');
+const Enmap = require('enmap');
 const readdir = promisify(require('fs').readdir);
 const klaw = require('klaw');
 const path = require('path');
@@ -17,6 +18,25 @@ class BotApplication extends Client {
     // Create the necessary collections to run the bot
     this.commands = new Collection();
     this.aliases = new Collection();
+
+    // Enmap settings
+    this.settings = new Enmap({
+      name: 'serverSettings',
+      cloneLevel: 'deep',
+      fetchAll: false,
+      autoFetch: true,
+    });
+
+    // Enmap for xp system
+    this.xpSystem = new Enmap({
+      name: 'xpSystem',
+      cloneLevel: 'deep',
+      fetchAll: false,
+      autoFetch: true,
+    });
+
+    // Cache for permission levels
+    this.levelCache = {};
   }
 
   async init() {
@@ -25,7 +45,12 @@ class BotApplication extends Client {
 
     // Load commands and events into memory
     await this.loadEvents();
-    await this.loadCommands();
+    this.loadCommands();
+
+    // Set the permission level cache
+    this.config.permLevels.forEach((permLevel) => {
+      this.levelCache[permLevel.name] = permLevel.lvl;
+    });
 
     // Once the bootstrapping is ready, log to the console
     this.once('ready', () => {
@@ -108,6 +133,70 @@ class BotApplication extends Client {
     } catch (error) {
       this.logger.error(`Unable to load command ${commandName} ->\n${error}`);
       return false;
+    }
+  }
+
+  /**
+   * Gets the current server settings
+   * @param {String} serverId the ID of the server
+   */
+  getServerSettings(serverId) {
+    const defaultSettings = this.config.defaultServerSettings || {};
+    const serverData = this.settings.get(serverId) || {};
+    const settings = {};
+
+    Object.keys(defaultSettings).forEach((key) => {
+      settings[key] = serverData[key] || defaultSettings[key];
+    });
+
+    return settings;
+  }
+
+  /**
+   * Override or add configuration items to the specified server
+   * @param {string} serverId the ID of the server
+   * @param {object} newSettings object containing the new settings to update
+   */
+  updateServerSettings(serverId, newSettings) {
+    const defaultSettings = this.settings.get('default');
+    // eslint-disable-next-line prefer-const
+    let serverSettings = this.settings.get(serverId);
+
+    if (typeof serverSettings === 'object') {
+      Object.keys(newSettings).forEach((key) => {
+        if (defaultSettings[key] !== newSettings[key]) {
+          serverSettings[key] = newSettings[key];
+        } else {
+          delete serverSettings[key];
+        }
+      });
+    } else {
+      serverSettings = {};
+    }
+
+    this.settings.set(serverId, serverSettings);
+  }
+
+  /**
+   * Awaits a user's response
+   * @param {Object} userMessage message object from the user that activated the command
+   * @param {String|Object} botMessageContent content of the message to send
+   * @param {Number} timeLimit time limit (in milliseconds)
+   */
+  async awaitResponse(userMessage, botMessageContent, timeLimit = 60000) {
+    await userMessage.channel.send(botMessageContent);
+
+    try {
+      const newMessages = await userMessage.channel.awaitMessages((x) => x.author.id === userMessage.author.id, {
+        max: 1,
+        time: timeLimit,
+        errors: ['time'],
+      });
+
+      return newMessages.fisrt().content;
+    } catch (error) {
+      this.logger.error(error.toString());
+      return '';
     }
   }
 }
