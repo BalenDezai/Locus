@@ -17,6 +17,7 @@ module.exports = {
   rules: {
     "no-console": 0,
     "max-len": "off",
-    "consistent-return": "off"
+    "consistent-return": "off",
+    "linebreak-style": 0
   },
 };

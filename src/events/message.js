@@ -10,6 +10,11 @@ class Message {
     if (!message.author.bot) {
       if (message.guild) {
         if (message.channel.permissionsFor(message.guild.me).missing('SEND_MESSAGES')) {
+          // Fetch guild settings, then attach to message object
+          const guildSettings = this.client.getServerSettings(message.guild.id);
+          // eslint-disable-next-line no-param-reassign
+          message.settings = guildSettings;
+
           // Check if the bot was mentioned
           const botMention = new RegExp(`^<@!?${this.client.user.id}>( |)$`);
 
