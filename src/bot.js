@@ -193,7 +193,7 @@ class BotApplication extends Client {
         errors: ['time'],
       });
 
-      return newMessages.fisrt().content;
+      return newMessages.first().content;
     } catch (error) {
       this.logger.error(error.toString());
       return '';
