@@ -1,4 +1,5 @@
-const InfoMessages = require('../utils/infoMessages.js');
+const InfoMessages = require('../utils/infoMessages');
+const GeneralUtils = require('../utils/generalUtils');
 
 class Message {
   constructor(_client) {
@@ -20,7 +21,7 @@ class Message {
 
           // If the bot was mentioned, return the current prefix
           if (message.content.match(botMention)) {
-            return message.channel.reply(InfoMessages.createInfoMessage(`The current prefix for this server is: ${'!'}`))
+            return message.channel.reply(InfoMessages.createInfoMessage(`The current prefix for this server is: ${guildSettings.prefix}`))
               .then((botMessage) => {
                 botMessage.delete(10000);
               })
@@ -30,8 +31,7 @@ class Message {
           }
 
           // Check the message start for the prefix
-          /** @TODO change to guild settings prefix */
-          if (message.content.indexOf('!') === 0) {
+          if (message.content.indexOf(guildSettings.prefix) === 0) {
             const messageArguments = message.content.substring(1).trim().split(' ');
             const commandText = messageArguments.shift().toLowerCase();
 
@@ -41,14 +41,43 @@ class Message {
               await message.guild.fetchMember(message.author);
             }
 
+            // Grab the command from the Collection
             const command = this.client.commands.get(commandText) || this.client.commands.get(this.client.aliases.get(commandText));
 
+            // If the command exists, set the logic to execute it
             if (command) {
               if (!message.guild && command.conf.guildOnly) {
                 return message.channel.send(InfoMessages.createErrorMessage('Sorry, this command is unavailable to use in DMs.'));
               }
 
-              command.run(message, messageArguments, 10);
+              // Check if the level set in the command actually exists
+              if (typeof (this.client.levelCache[command.conf.permLevel]) !== 'number') {
+                return message.channel.send(InfoMessages.createErrorMessage('The command you\'re trying to execute was not properly configured. Please contact the bot\'s admin.'));
+              }
+
+              // Get the member's permission level
+              const levelObject = this.client.permLevel(message);
+              const userPerms = message.member.permissions.toArray();
+
+              // Check the required level against the command's required level
+              if (levelObject.lvl < this.client.levelCache[command.conf.permLevel]) {
+                // Check the user permissions
+                if (!GeneralUtils.hasPerms(userPerms, command.conf.perms)) {
+                  // Notify the server if the user doesn't have permissions to execute the command
+                  if (guildSettings.systemNotice) {
+                    return message.channel.send(InfoMessages.createErrorMessage('You do not have enough permission to use this command.'));
+                  }
+
+                  return;
+                }
+              }
+
+              // Set the author's permission level in the message object to the current level
+              message.author.permLevel = levelObject.lvl;
+
+              // Log and run the command
+              this.client.logger.command(message.author.tag, message.author.id, command.help.name);
+              command.run(message, messageArguments, levelObject.lvl);
             }
           }
         }

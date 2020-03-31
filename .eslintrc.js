@@ -18,6 +18,7 @@ module.exports = {
     "no-console": 0,
     "max-len": "off",
     "consistent-return": "off",
-    "linebreak-style": 0
+    "linebreak-style": 0,
+    "no-param-reassign": "off",
   },
 };

@@ -1,5 +1,6 @@
 const { MessageEmbed } = require('discord.js');
 const Command = require('./commandModel');
+const InfoMessages = require('../utils/infoMessages');
 
 class Help extends Command {
   constructor(client) {
@@ -68,6 +69,35 @@ class Help extends Command {
 
       // Send the message
       message.channel.send(helpMessage);
+    } else {
+      // Get the command name from the arguments
+      const commandName = args[0];
+      // Fetch the command object from the collection
+      const commandObject = this.client.commands.get(commandName);
+
+      if (commandObject) {
+        if (!(lvl < this.client.levelCache[commandObject.conf.permLevel])) {
+          // Create a rich embed for the command arguments
+          const helpMessage = new MessageEmbed()
+            .setColor('#7ED321')
+            .setTitle(`Command name: _${commandObject.help.name}_`)
+            .setDescription(commandObject.help.description)
+            .addField('Usage', commandObject.help.usage)
+            .setTimestamp();
+
+          // Populate the aliases list
+          if (commandObject.conf.aliases.length > 0) {
+            helpMessage.addField('Aliases', commandObject.conf.aliases.join(', '));
+          }
+
+          // Send the message
+          message.channel.send(helpMessage);
+        } else {
+          message.channel.send(InfoMessages.createErrorMessage(`You do not have permission to view the help of the command ${commandName}`));
+        }
+      } else {
+        message.channel.send(InfoMessages.createErrorMessage(`Command ${commandName} does not exist!`));
+      }
     }
   }
 }
