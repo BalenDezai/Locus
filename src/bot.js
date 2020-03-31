@@ -199,6 +199,23 @@ class BotApplication extends Client {
       return '';
     }
   }
+
+  /**
+   * Returns the permission level required for a specific command
+   * @param {object} message the message object
+   */
+  permLevel(message) {
+    const permOrder = this.config.permLevels.slice(0).sort((a, b) => (a.lvl < b.lvl ? 1 : -1));
+
+    while (permOrder.length) {
+      const currentLevel = permOrder.shift();
+      if (currentLevel.check(message)) {
+        return currentLevel;
+      }
+    }
+
+    return this.config.permLevels[0];
+  }
 }
 
 module.exports = BotApplication;

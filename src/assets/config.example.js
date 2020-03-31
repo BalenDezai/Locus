@@ -65,7 +65,10 @@ const config = {
     {
       lvl: 10,
       name: 'Bot Owner',
-      check: (message) => (message.client.appInfo.owner.id === message.author.id),
+      check: (message) => {
+        // eslint-disable-next-line arrow-body-style
+        message.client.fetchApplication().then((application) => { return application.owner.id === message.author.id; });
+      },
     },
   ],
 };

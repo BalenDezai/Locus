@@ -39,8 +39,14 @@ class Logger {
     return this.log(content, 'debug');
   }
 
-  static command(content) {
-    return this.log(content, 'command');
+  /**
+   * Logs the use of a command to the console in a standardized format
+   * @param {string} tag the user's tag
+   * @param {string} id the ID of the user
+   * @param {string} commandName the name of the command
+   */
+  static command(tag, id, commandName) {
+    return this.log(`User ${tag} (ID:${id}) is trying to run command ${commandName}`, 'command');
   }
 }
 
