@@ -19,6 +19,21 @@ const config = {
     byeMessage: 'Bye {{user}}',
   },
 
+  // Database connection information
+  database: {
+    hostname: '',
+    username: '',
+    password: '',
+    name: '',
+  },
+
+  // XP System settings
+  xp: {
+    min: 10,
+    max: 20,
+    cooldown: 120, // seconds
+  },
+
   // Command permission levels
   permLevels: [
     {

@@ -16,11 +16,11 @@ class Command {
       description,
       category,
       usage,
+      aliases,
     };
     this.conf = {
       enabled,
       guildOnly,
-      aliases,
       permLevel,
       perms,
     };
