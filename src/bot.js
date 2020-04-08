@@ -6,6 +6,7 @@ const Enmap = require('enmap');
 const readdir = promisify(require('fs').readdir);
 const klaw = require('klaw');
 const path = require('path');
+const { Sequelize } = require('sequelize');
 const config = require('./assets/config');
 const logger = require('./utils/logger');
 
@@ -27,13 +28,17 @@ class BotApplication extends Client {
       autoFetch: true,
     });
 
-    // Enmap for xp system
-    this.xpSystem = new Enmap({
-      name: 'xpSystem',
-      cloneLevel: 'deep',
-      fetchAll: false,
-      autoFetch: true,
+    // XP System
+    this.db = new Sequelize({
+      dialect: 'mysql',
+      database: this.config.database.name,
+      host: this.config.database.hostname,
+      username: this.config.database.username,
+      password: this.config.database.password,
+      logging: false,
     });
+
+    this.xpModel = {};
 
     // Cache for permission levels
     this.levelCache = {};
@@ -51,6 +56,44 @@ class BotApplication extends Client {
     this.config.permLevels.forEach((permLevel) => {
       this.levelCache[permLevel.name] = permLevel.lvl;
     });
+
+    // Connect to mysql
+    this.db.authenticate()
+      .then(() => {
+        this.logger.log('Successfully connected to Database!');
+      })
+      .catch((error) => {
+        this.logger.error(error);
+        // We shouldn't allow people to execute the program without having the database created
+        process.exit(1);
+      });
+
+    // Define the model for the xp
+    this.xpModel = this.db.define('xp', {
+      userid: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      serverid: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      xpamount: {
+        type: Sequelize.BIGINT,
+      },
+      lastxp: {
+        type: Sequelize.BIGINT,
+      },
+    });
+
+    // Sync to the database, it should only create the table once!
+    try {
+      await this.xpModel.sync();
+      this.logger.log('XP base table was created or it already exists!');
+    } catch (error) {
+      this.logger.error(error);
+      throw new Error(error);
+    }
 
     // Once the bootstrapping is ready, log to the console
     this.once('ready', () => {
