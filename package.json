@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bravio/LocusRedux.git"
+    "url": "git+https://github.com/macs0/LocusRedux.git"
   },
   "author": "bravio on GitHub",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bravio/LocusRedux/issues"
+    "url": "https://github.com/macs0/LocusRedux/issues"
   },
-  "homepage": "https://github.com/bravio/LocusRedux#readme",
+  "homepage": "https://github.com/macs0/LocusRedux#readme",
   "dependencies": {
     "better-sqlite3": "^6.0.1",
     "chalk": "^3.0.0",
