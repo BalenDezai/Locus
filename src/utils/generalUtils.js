@@ -10,6 +10,7 @@ class GeneralUtils {
         return false;
       }
     });
+
     return true;
   }
 }

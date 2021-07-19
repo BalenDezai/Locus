@@ -11,17 +11,39 @@ class Logger {
 
     switch (type) {
       case 'log':
-        return console.log(`${currentTimestamp} ${chalk.bgBlue(type.toUpperCase())} -> ${content}`);
+        return console.log(
+          `${currentTimestamp} ${chalk.bgBlue(
+            type.toUpperCase()
+          )} -> ${content}`
+        );
       case 'debug':
-        return console.log(`${currentTimestamp} ${chalk.bgWhite(type.toUpperCase())} -> ${content}`);
+        return console.log(
+          `${currentTimestamp} ${chalk.bgWhite(
+            type.toUpperCase()
+          )} -> ${content}`
+        );
       case 'error':
-        return console.log(`${currentTimestamp} ${chalk.bgRed(type.toUpperCase())} -> ${content}`);
+        return console.log(
+          `${currentTimestamp} ${chalk.bgRed(type.toUpperCase())} -> ${content}`
+        );
       case 'warning':
-        return console.log(`${currentTimestamp} ${chalk.bgYellow(type.toUpperCase())} -> ${content}`);
+        return console.log(
+          `${currentTimestamp} ${chalk.bgYellow(
+            type.toUpperCase()
+          )} -> ${content}`
+        );
       case 'success':
-        return console.log(`${currentTimestamp} ${chalk.bgGreen(type.toUpperCase())} -> ${content}`);
+        return console.log(
+          `${currentTimestamp} ${chalk.bgGreen(
+            type.toUpperCase()
+          )} -> ${content}`
+        );
       case 'command':
-        return console.log(`${currentTimestamp} ${chalk.bgMagenta(type.toUpperCase())} -> ${content}`);
+        return console.log(
+          `${currentTimestamp} ${chalk.bgMagenta(
+            type.toUpperCase()
+          )} -> ${content}`
+        );
       default:
         throw new Error('Incorrect/unsupported logging type');
     }
@@ -46,7 +68,10 @@ class Logger {
    * @param {string} commandName the name of the command
    */
   static command(tag, id, commandName) {
-    return this.log(`User ${tag} (ID:${id}) is trying to run command ${commandName}`, 'command');
+    return this.log(
+      `User ${tag} (ID:${id}) is trying to run command ${commandName}`,
+      'command'
+    );
   }
 }
 

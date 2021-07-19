@@ -4,10 +4,7 @@ module.exports = {
     es6: true,
     node: true,
   },
-  extends: [
-    'airbnb-base',
-    'prettier'
-  ],
+  extends: ['airbnb-base', 'prettier'],
   globals: {
     Atomics: 'readonly',
     SharedArrayBuffer: 'readonly',
@@ -16,10 +13,10 @@ module.exports = {
     ecmaVersion: 2018,
   },
   rules: {
-    "no-console": 0,
-    "max-len": "off",
-    "consistent-return": "off",
-    "linebreak-style": 0,
-    "no-param-reassign": "off",
+    'no-console': 0,
+    'max-len': 'off',
+    'consistent-return': 'off',
+    'linebreak-style': 0,
+    'no-param-reassign': 'off',
   },
 };

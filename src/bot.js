@@ -2,16 +2,12 @@
 /* eslint-disable import/no-dynamic-require */
 const { Client, Collection } = require('discord.js');
 const { promisify } = require('util');
-const Enmap = require('enmap');
 const readdir = promisify(require('fs').readdir);
 const klaw = require('klaw');
 const path = require('path');
-const { Sequelize } = require('sequelize');
-const config = require('./assets/config');
-const logger = require('./utils/logger');
 
 class BotApplication extends Client {
-  constructor() {
+  constructor(logger, config, Enmap) {
     super();
     this.config = config;
     this.logger = logger;
@@ -28,23 +24,11 @@ class BotApplication extends Client {
       autoFetch: true,
     });
 
-    // XP System
-    this.db = new Sequelize({
-      dialect: 'mysql',
-      database: this.config.database.name,
-      host: this.config.database.hostname,
-      username: this.config.database.username,
-      password: this.config.database.password,
-      logging: false,
-    });
-
-    this.xpModel = {};
-
     // Cache for permission levels
     this.levelCache = {};
   }
 
-  async init() {
+  async init(Mongoose, XpModel) {
     // Login into Discord using the provided bot token in the config
     this.login(this.config.token);
 
@@ -57,44 +41,14 @@ class BotApplication extends Client {
       this.levelCache[permLevel.name] = permLevel.lvl;
     });
 
-    // Connect to mysql
-    this.db.authenticate()
-      .then(() => {
-        this.logger.log('Successfully connected to Database!');
-      })
-      .catch((error) => {
-        this.logger.error(error);
-        // We shouldn't allow people to execute the program without having the database created
-        process.exit(1);
-      });
+    const dbStr = `mongodb+srv://${this.config.database.username}:${this.config.database.password}@initcluster.33xti.mongodb.net/${this.config.database.name}?retryWrites=true&w=majority`;
 
-    // Define the model for the xp
-    this.xpModel = this.db.define('xp', {
-      userid: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      serverid: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      xpamount: {
-        type: Sequelize.BIGINT,
-      },
-      lastxp: {
-        type: Sequelize.BIGINT,
-      },
+    await Mongoose.connect(dbStr, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
     });
 
-    // Sync to the database, it should only create the table once!
-    try {
-      await this.xpModel.sync();
-      this.logger.log('XP base table was created or it already exists!');
-    } catch (error) {
-      this.logger.error(error);
-      throw new Error(error);
-    }
-
+    this.xpModel = XpModel;
     // Once the bootstrapping is ready, log to the console
     this.once('ready', () => {
       console.log('Locus is ready to operate!');
@@ -127,7 +81,6 @@ class BotApplication extends Client {
    */
   loadCommands() {
     this.logger.log('Klawing through commands...');
-    let counter = 0;
 
     klaw('./src/commands', { depthLimit: 2 })
       .on('data', (item) => {
@@ -137,17 +90,11 @@ class BotApplication extends Client {
         if (!commandFile.ext || commandFile.ext !== '.js') return;
 
         if (commandFile.name !== 'commandModel') {
-          // Use the below function to load the command into the collection
-          const commandLoaded = this.loadCommand(commandFile.dir, `${commandFile.name}`);
-
-          // Increment the counter if a command is successfully loaded
-          if (commandLoaded) {
-            counter += 1;
-          }
+          this.loadCommand(commandFile.dir, `${commandFile.name}`);
         }
       })
       .on('end', () => {
-        this.logger.log(`Successfully loaded ${counter.toString()} commands`);
+        this.logger.log(`Successfully loaded ${this.commands.size} commands`);
       });
   }
 
@@ -158,7 +105,9 @@ class BotApplication extends Client {
    */
   loadCommand(commandPath, commandName) {
     try {
-      const command = new (require(`${commandPath + path.sep + commandName}`))(this);
+      const command = new (require(`${commandPath + path.sep + commandName}`))(
+        this
+      );
       command.conf.location = commandPath;
 
       if (command.init) {
@@ -230,11 +179,14 @@ class BotApplication extends Client {
     await userMessage.channel.send(botMessageContent);
 
     try {
-      const newMessages = await userMessage.channel.awaitMessages((x) => x.author.id === userMessage.author.id, {
-        max: 1,
-        time: timeLimit,
-        errors: ['time'],
-      });
+      const newMessages = await userMessage.channel.awaitMessages(
+        (x) => x.author.id === userMessage.author.id,
+        {
+          max: 1,
+          time: timeLimit,
+          errors: ['time'],
+        }
+      );
 
       return newMessages.first().content;
     } catch (error) {
@@ -248,7 +200,9 @@ class BotApplication extends Client {
    * @param {object} message the message object
    */
   permLevel(message) {
-    const permOrder = this.config.permLevels.slice(0).sort((a, b) => (a.lvl < b.lvl ? 1 : -1));
+    const permOrder = this.config.permLevels
+      .slice(0)
+      .sort((a, b) => (a.lvl < b.lvl ? 1 : -1));
 
     while (permOrder.length) {
       const currentLevel = permOrder.shift();

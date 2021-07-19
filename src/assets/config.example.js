@@ -46,7 +46,11 @@ const config = {
       name: 'Moderator',
       check: (message) => {
         try {
-          const modRole = message.guild.roles.find((r) => r.name.toLowerCase() === message.settings.modRoleName.toLowerCase());
+          const modRole = message.guild.roles.find(
+            (r) =>
+              r.name.toLowerCase() ===
+              message.settings.modRoleName.toLowerCase()
+          );
           if (modRole && message.member.roles.has(modRole.id)) return true;
         } catch (e) {
           return false;
@@ -59,7 +63,11 @@ const config = {
       name: 'Administrator',
       check: (message) => {
         try {
-          const adminRole = message.guild.roles.find((r) => r.name.toLowerCase() === message.settings.adminRoleName.toLowerCase());
+          const adminRole = message.guild.roles.find(
+            (r) =>
+              r.name.toLowerCase() ===
+              message.settings.adminRoleName.toLowerCase()
+          );
           if (adminRole && message.member.roles.has(adminRole.id)) return true;
         } catch (e) {
           return false;
@@ -69,8 +77,10 @@ const config = {
     {
       lvl: 3,
       name: 'Server Owner',
-      check: (message) => (message.channel.type === 'text' ? (message.guild.owner.user.id === message.author.id) : false),
-
+      check: (message) =>
+        message.channel.type === 'text'
+          ? message.guild.owner.user.id === message.author.id
+          : false,
     },
     {
       lvl: 9,
@@ -82,7 +92,9 @@ const config = {
       name: 'Bot Owner',
       check: (message) => {
         // eslint-disable-next-line arrow-body-style
-        message.client.fetchApplication().then((application) => { return application.owner.id === message.author.id; });
+        message.client.fetchApplication().then((application) => {
+          return application.owner.id === message.author.id;
+        });
       },
     },
   ],

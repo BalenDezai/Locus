@@ -1,39 +1,39 @@
 {
-  "name": "locusredux",
+  "name": "locus",
   "version": "0.0.1",
-  "description": "Redux of the Locus Discord bot",
+  "description": "The Locus Discord bot",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "pretty-quick": "pretty-quick"
+    "pretty-quick": "pretty-quick",
+    "start": "node index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/macs0/LocusRedux.git"
+    "url": "git+https://github.com/BalenDezai/Locus.git"
   },
-  "author": "macs0",
+  "author": "BalenD",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/macs0/LocusRedux/issues"
+    "url": "https://github.com/BalenDezai/Locus/issues"
   },
-  "homepage": "https://github.com/macs0/LocusRedux#readme",
+  "homepage": "https://github.com/BalenDezai/Locus",
   "dependencies": {
-    "better-sqlite3": "^6.0.1",
-    "chalk": "^3.0.0",
-    "discord.js": "^12.0.2",
-    "enmap": "^5.2.4",
+    "better-sqlite3": "^7.4.1",
+    "chalk": "^4.1.1",
+    "discord.js": "^12.5.3",
+    "enmap": "^5.8.7",
     "klaw": "^3.0.0",
-    "mysql2": "^2.1.0",
-    "sequelize": "^5.21.6"
+    "mongoose": "^5.13.3"
   },
   "devDependencies": {
-    "eslint": "^6.8.0",
-    "eslint-config-airbnb-base": "^14.1.0",
-    "eslint-config-prettier": "^6.11.0",
-    "eslint-plugin-import": "^2.20.1",
-    "husky": "^4.2.5",
-    "prettier": "^2.0.5",
-    "pretty-quick": "^2.0.1"
+    "eslint": "^7.30.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.23.4",
+    "husky": "^7.0.1",
+    "prettier": "^2.3.2",
+    "pretty-quick": "^3.1.1"
   },
   "husky": {
     "hooks": {

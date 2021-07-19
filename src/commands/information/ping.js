@@ -14,7 +14,11 @@ class Ping extends Command {
   async run(message) {
     try {
       const pongMessage = await message.channel.send(':ping_pong: | Ping!');
-      pongMessage.edit(`:ping_pong: | Pong! (Latency: ${pongMessage.createdTimestamp - message.createdTimestamp}ms)`);
+      pongMessage.edit(
+        `:ping_pong: | Pong! (Latency: ${
+          pongMessage.createdTimestamp - message.createdTimestamp
+        }ms)`
+      );
     } catch (error) {
       this.client.logger.error(error);
     }

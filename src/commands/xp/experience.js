@@ -13,12 +13,25 @@ class Experience extends Command {
   }
 
   async run(message) {
-    this.client.xpModel.findOne({ where: { serverid: message.guild.id, userid: message.author.id } })
+    this.client.xpModel
+      .findOne({
+        where: { serverid: message.guild.id, userid: message.author.id },
+      })
       .then((model) => {
         if (model) {
-          message.channel.send(InfoMessages.createSuccessMessage(`Viewing current xp and level\n**Current XP**: ${model.xpamount}\n**Current Level**: ${this.getLevelFromXp(model.xpamount)}`));
+          message.channel.send(
+            InfoMessages.createSuccessMessage(
+              `Viewing current xp and level\n**Current XP**: ${
+                model.xpamount
+              }\n**Current Level**: ${this.getLevelFromXp(model.xpamount)}`
+            )
+          );
         } else {
-          message.channel.send(InfoMessages.createErrorMessage('Database entry for this user does not exist'));
+          message.channel.send(
+            InfoMessages.createErrorMessage(
+              'Database entry for this user does not exist'
+            )
+          );
         }
       });
   }
@@ -29,7 +42,7 @@ class Experience extends Command {
    */
   // eslint-disable-next-line class-methods-use-this
   getLevelExp(level) {
-    return (5 * (level ** 2)) + (50 * level) + 100;
+    return 5 * level ** 2 + 50 * level + 100;
   }
 
   /**
