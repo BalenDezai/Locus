@@ -5,13 +5,15 @@ class GeneralUtils {
    * @param {*} commandPermissions the permissions needed to run command
    */
   static hasPerms(memberPermissions, commandPermissions) {
-    commandPermissions.forEach((perm) => {
-      if (!memberPermissions.includes(perm)) {
-        return false;
-      }
-    });
+    return commandPermissions.some(val => memberPermissions.indexOf(val) !== -1);
 
-    return true;
+    // commandPermissions.forEach((perm) => {
+    //   if (!memberPermissions.includes(perm)) {
+    //     return false;
+    //   }
+    // });
+
+    // return true;
   }
 }
 

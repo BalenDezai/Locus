@@ -98,8 +98,9 @@ class Message {
     const levelObject = this.client.permLevel(message);
 
     // Check the required level against the command's required level
-    if (levelObject.lvl < this.client.levelCache[command.conf.permLevel])
-      this.permissionDeny(message, command, guildSettings.systemNotice);
+    if (levelObject.lvl < this.client.levelCache[command.conf.permLevel]) {
+      return this.permissionDeny(message, command, guildSettings.systemNotice);
+    }
 
     // Set the author's permission level in the message object to the current level
     message.author.permLevel = levelObject.lvl;
