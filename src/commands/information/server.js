@@ -6,7 +6,7 @@ class Server extends Command {
     super(client, {
       name: 'server',
       description: 'Shows server information',
-      category: 'basic',
+      category: 'information',
       usage: 'server',
       guildOnly: true,
       permLevel: 'Member',
